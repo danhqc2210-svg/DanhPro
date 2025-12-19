@@ -40,7 +40,7 @@ export class TTSService {
     const prompt = "Phân tích đặc điểm giọng nói: giới tính, tuổi, sắc thái, cảm xúc. Trả về 1 đoạn mô tả ngắn bằng tiếng Anh.";
     try {
       const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "audio/wav", data: audioBase64 } }] }],
       });
       return response.text || "Professional voice.";
@@ -54,7 +54,7 @@ export class TTSService {
     const prompt = `Sửa lỗi chính tả văn bản sau. Giữ nguyên (marker). Chỉ trả về kết quả:\n${text}`;
     try {
       const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: prompt }] }],
       });
       return response.text || text;
