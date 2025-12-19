@@ -1,0 +1,7 @@
+{
+  "name": "Copy of DANH VOICE PRO (Gemini Powered)",
+  "description": "A high-performance Text-to-Speech application inspired by Fish Audio's S1-mini, powered by Gemini 2.5 Flash TTS for human-like voice synthesis.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
