@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality } from "@google/genai";
 import { TTSConfig, VoiceName, Language } from "../types";
 import { decode, decodeAudioData, createWavBlob } from "../utils/audioHelper";
@@ -16,7 +15,9 @@ export class TTSService {
   private playbackState: 'playing' | 'paused' | 'stopped' = 'stopped';
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // SỬA: Sử dụng import.meta.env cho Vite và khớp với biến Vercel
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+    this.ai = new GoogleGenAI({ apiKey });
   }
 
   getAudioContext() {
@@ -40,7 +41,7 @@ export class TTSService {
     const prompt = "Phân tích đặc điểm giọng nói: giới tính, tuổi, sắc thái, cảm xúc. Trả về 1 đoạn mô tả ngắn bằng tiếng Anh.";
     try {
       const response = await this.ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.0-flash", // Đã chuẩn hóa
         contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "audio/wav", data: audioBase64 } }] }],
       });
       return response.text || "Professional voice.";
@@ -54,7 +55,7 @@ export class TTSService {
     const prompt = `Sửa lỗi chính tả văn bản sau. Giữ nguyên (marker). Chỉ trả về kết quả:\n${text}`;
     try {
       const response = await this.ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.0-flash", // Đã chuẩn hóa
         contents: [{ parts: [{ text: prompt }] }],
       });
       return response.text || text;
@@ -97,7 +98,8 @@ ${config.text}`;
 
     try {
       const response = await this.ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
+        // QUAN TRỌNG: Đã đổi sang gemini-2.0-flash để tránh giới hạn 10 lượt/ngày
+        model: "gemini-2.0-flash", 
         contents: [{ parts: [{ text: promptText }] }],
         config: {
           responseModalities: [Modality.AUDIO],
