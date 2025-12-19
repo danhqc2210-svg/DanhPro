@@ -461,7 +461,7 @@ const App: React.FC = () => {
       </div>
 
       <footer className="mt-16 py-8 text-center text-gray-700 text-[9px] border-t border-white/5 w-full uppercase tracking-[0.2em] font-black">
-        DANH VOICE PRO V2.8 • SEMANTIC INFLECTION • POWERED BY GEMINI 2.5 FLASH
+        DANH VOICE PRO V2.0 • SEMANTIC INFLECTION • POWERED BY GEMINI 2.0 FLASH
       </footer>
     </div>
   );
