@@ -8,12 +8,21 @@ export enum VoiceName {
   AOEDE = 'Aoede'
 }
 
+export enum Language {
+  AUTO = 'Tự động',
+  VIETNAMESE = 'Tiếng Việt',
+  JAPANESE = 'Tiếng Nhật',
+  ENGLISH = 'Tiếng Anh'
+}
+
 export interface TTSConfig {
   voiceName: VoiceName;
   text: string;
+  language: Language;
   stylePrompt?: string;
   pitch: number;
-  referenceProfile?: string; // Đặc điểm giọng nói đã phân tích
+  speed: number;
+  referenceProfile?: string;
 }
 
 export interface VoiceOption {
