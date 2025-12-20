@@ -8,7 +8,6 @@ export class TTSService {
   private activeSource: AudioBufferSourceNode | null = null;
 
   constructor() {
-    // API Key đã được Active trên Vercel của bạn
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     this.ai = new GoogleGenAI({ apiKey });
   }
@@ -20,24 +19,23 @@ export class TTSService {
         model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: config.text }] }],
         config: {
-          // Định dạng bắt buộc để sửa lỗi 400
-          responseModalities: ["audio"], 
+          responseModalities: ["audio"],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } }
         }
       });
       const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-      if (!data) throw new Error("No data");
+      if (!data) throw new Error("No data received from API");
       const pcmBytes = decode(data);
       const audioBuffer = await decodeAudioData(pcmBytes, ctx, 24000, 1);
       return { audioBuffer, blob: createWavBlob(pcmBytes, 24000), base64: data };
-    } catch (e) { 
-      console.error("TTS Error:", e); 
-      throw e; 
+    } catch (e) {
+      console.error("TTS Error:", e);
+      throw e;
     }
   }
   
   stop() { if (this.activeSource) this.activeSource.stop(); this.playbackState = 'stopped'; }
-  // Sửa lỗi "getPlaybackState is not a function"
   getPlaybackState() { return this.playbackState; }
 }
+
 export const ttsService = new TTSService();
