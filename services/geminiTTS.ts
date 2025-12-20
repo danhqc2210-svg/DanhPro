@@ -15,7 +15,7 @@ export class TTSService {
   private playbackState: 'playing' | 'paused' | 'stopped' = 'stopped';
 
   constructor() {
-    // Sử dụng đúng Key đã cấu hình trên Vercel
+    // Lấy API Key từ biến môi trường đã cài trên Vercel
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     this.ai = new GoogleGenAI({ apiKey });
   }
@@ -34,16 +34,17 @@ export class TTSService {
     const promptText = `HÀNH ĐỘNG: Diễn viên lồng tiếng chuyên nghiệp. KỊCH BẢN: ${config.text}`;
 
     try {
-      // SỬA LỖI 400: Model 2.0 Flash bắt buộc responseModalities là ["audio"]
+      // SỬA LỖI 400: Cấu trúc bắt buộc cho Gemini 2.0 Flash
       const response = await this.ai.models.generateContent({
         model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: promptText }] }],
         config: {
+          // QUAN TRỌNG: Phải dùng chuỗi "audio" viết thường
           responseModalities: ["audio"], 
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: { 
-                voiceName: config.voiceName.includes('custom') ? VoiceName.ZEPHYR : config.voiceName as VoiceName 
+                voiceName: config.voiceName.includes('custom') ? "Aoede" : config.voiceName as any
               },
             },
           },
@@ -91,7 +92,7 @@ export class TTSService {
     this.playbackState = 'stopped';
   }
 
-  // SỬA LỖI: Thêm hàm này để không bị lỗi TypeError trong App.tsx
+  // SỬA LỖI TREO: Thêm hàm này để fix lỗi "getPlaybackState is not a function"
   getPlaybackState() {
     return this.playbackState;
   }
