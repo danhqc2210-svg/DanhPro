@@ -19,7 +19,7 @@ export class TTSService {
         model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: config.text }] }],
         config: {
-          responseModalities: ["audio"], // Sửa lỗi 400 dứt điểm
+          responseModalities: ["audio"],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } }
         }
       });
@@ -32,6 +32,6 @@ export class TTSService {
   }
   
   stop() { if (this.activeSource) this.activeSource.stop(); this.playbackState = 'stopped'; }
-  getPlaybackState() { return this.playbackState; } // Sửa lỗi treo App
+  getPlaybackState() { return this.playbackState; }
 }
 export const ttsService = new TTSService();
