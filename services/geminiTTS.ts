@@ -15,6 +15,7 @@ export class TTSService {
   private playbackState: 'playing' | 'paused' | 'stopped' = 'stopped';
 
   constructor() {
+    // Đảm bảo khớp với Key bạn vừa tạo trên Vercel
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     this.ai = new GoogleGenAI({ apiKey });
   }
@@ -37,11 +38,12 @@ export class TTSService {
         model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: promptText }] }],
         config: {
-          responseModalities: ["audio"],
+          // Sửa lỗi INVALID_ARGUMENT (400)
+          responseModalities: ["audio"], 
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: { 
-                voiceName: config.voiceName.includes('custom') ? "Aoede" : config.voiceName as any 
+                voiceName: config.voiceName.includes('custom') ? VoiceName.ZEPHYR : config.voiceName as VoiceName 
               },
             },
           },
@@ -65,6 +67,7 @@ export class TTSService {
   async play(audioBuffer: AudioBuffer, onEnded?: () => void) {
     this.stop();
     const ctx = this.getAudioContext();
+    if (ctx.state === 'suspended') await ctx.resume();
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(ctx.destination);
@@ -75,6 +78,8 @@ export class TTSService {
   }
 
   stop() { if (this.activeSource) { this.activeSource.stop(); this.activeSource = null; } this.playbackState = 'stopped'; }
+  
+  // Sửa lỗi "getPlaybackState is not a function"
   getPlaybackState() { return this.playbackState; }
 }
 
