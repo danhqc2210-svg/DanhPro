@@ -15,7 +15,7 @@ export class TTSService {
   private playbackState: 'playing' | 'paused' | 'stopped' = 'stopped';
 
   constructor() {
-    // Đảm bảo khớp với Key bạn vừa tạo trên Vercel
+    // Sử dụng đúng Key đã cấu hình trên Vercel
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     this.ai = new GoogleGenAI({ apiKey });
   }
@@ -34,11 +34,11 @@ export class TTSService {
     const promptText = `HÀNH ĐỘNG: Diễn viên lồng tiếng chuyên nghiệp. KỊCH BẢN: ${config.text}`;
 
     try {
+      // SỬA LỖI 400: Model 2.0 Flash bắt buộc responseModalities là ["audio"]
       const response = await this.ai.models.generateContent({
         model: "gemini-2.0-flash",
         contents: [{ parts: [{ text: promptText }] }],
         config: {
-          // Sửa lỗi INVALID_ARGUMENT (400)
           responseModalities: ["audio"], 
           speechConfig: {
             voiceConfig: {
@@ -51,7 +51,7 @@ export class TTSService {
       });
 
       const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-      if (!base64Audio) throw new Error("No audio data");
+      if (!base64Audio) throw new Error("API error: No audio data received");
 
       const pcmBytes = decode(base64Audio);
       const audioBuffer = await decodeAudioData(pcmBytes, ctx, 24000, 1);
@@ -71,16 +71,30 @@ export class TTSService {
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(ctx.destination);
-    source.onended = () => { this.playbackState = 'stopped'; onEnded?.(); };
+    source.onended = () => {
+      if (this.activeSource === source) {
+        this.activeSource = null;
+        this.playbackState = 'stopped';
+        onEnded?.();
+      }
+    };
     this.activeSource = source;
     this.playbackState = 'playing';
     source.start();
   }
 
-  stop() { if (this.activeSource) { this.activeSource.stop(); this.activeSource = null; } this.playbackState = 'stopped'; }
-  
-  // Sửa lỗi "getPlaybackState is not a function"
-  getPlaybackState() { return this.playbackState; }
+  stop() {
+    if (this.activeSource) {
+      try { this.activeSource.stop(); } catch (e) {}
+      this.activeSource = null;
+    }
+    this.playbackState = 'stopped';
+  }
+
+  // SỬA LỖI: Thêm hàm này để không bị lỗi TypeError trong App.tsx
+  getPlaybackState() {
+    return this.playbackState;
+  }
 }
 
 export const ttsService = new TTSService();
